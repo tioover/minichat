@@ -1,0 +1,49 @@
+<!Doctype html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="" type="text/css" media="screen" />
+    <link rel="stylesheet" href="{{ static_url("style.css") }}" type="text/css"/>
+    <title>颠颠</title>
+</head>
+<body>
+    <header>
+    <h1><a href="/">颠颠</a></h1>
+    </header>
+    <div id="main">
+        <div id="summary">
+            <h2>这是什么东西？</h2>
+            <p>仅仅是我用来练手的小东西而已。</p>
+            <h2>和之前做的有什么区别？</h2>
+            <ul>
+                <li>更广泛的使用了Ajax，在一般情况下你之需要加载一个页面，数据只靠json传递。</li>
+                <li>尝试使用了更多的HTML5，也在实验新的页面风格。</li>
+                <li>使用新的Python框架<a href="http://www.tornadoweb.org/">Tornado</a>。</li>
+                <li>后端使用了很快的NoSQL数据库<a href="http://redis.io/">Redis</a>。</li>
+            </ul>
+        </div>
+        <div id="chat">
+            <h2>说些什么吧</h2>
+            <form action="add/" method="get">
+                <p><label for="name">昵称</label></p>
+                <p><input type="text" id="name" name="name"></p>
+                <p><label for="email">Email</label></p>
+                <p><input type="email" id="email" name="email"></p>
+                <p><label for="content">内容</label></p>
+                <p><textarea id="content" name="content"></textarea></p>
+                <p><input type="submit" value="发送"></p>
+            </form>
+        </div>
+        <div id="list">
+            <h2>条目列表</h2>
+            <ul>
+                {% for item in items %}
+                <li>{{ item['content'] }} <p id="stamp"><span class="author">{{ item['name'] }}</span> <span id="date">{{ item['date'] }}</span></p></li>
+                {% end %}
+            </ul>
+        </div>
+    </div>
+    <fooder>2010 <a href="http://eggfan.org/">Tioover</a>.</fooder>
+    <script src="{{ static_url("im.js") }}" type="text/javascript"></script>
+</body>
+</html>
