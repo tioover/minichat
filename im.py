@@ -21,16 +21,17 @@ class Application(tornado.web.Application):
             (r"/api/items.json", Items),
         ]
         settings = dict(
-            cookie_secret="57oEAzKXQAGaYooo5mEmGeJ*FrQh7EQn_2XdTPmIKU1o/Vo=",
+            #cookie_secret="57oEAzKXQAGaYooo5mEmGeJ*FrQh7EQn_2XdTPmIKU1o/Vo=",
+            xsrf_cookies=False,
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
-            xsrf_cookies=False,
         )
         tornado.web.Application.__init__(self, handlers, **settings)
 
 class DataBase:
     db = redis.Redis(host='localhost', port=6379, db=0)
     def items(self):
+        '''Get items into dict'''
         items = []
         if self.db.get("item:id:max"):
             i = int(self.db.get("item:id:max"))
