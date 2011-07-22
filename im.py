@@ -12,7 +12,6 @@ from tornado.options import define, options
 
 define("port", default=8888, type=int)
 
-
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
