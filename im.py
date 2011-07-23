@@ -7,6 +7,7 @@ import os.path
 import redis
 import time
 import json
+import uuid
 
 from tornado.options import define, options
 
@@ -16,11 +17,11 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"/", Main),
-            (r"/add/", NewItem),
-            (r"/api/items.json", Items),
+            (r"/add/", AddItem),
+            (r"/items.json", Items),
+            (r"/id.json", PostId),
         ]
         settings = dict(
-            #cookie_secret="57oEAzKXQAGaYooo5mEmGeJ*FrQh7EQn_2XdTPmIKU1o/Vo=",
             xsrf_cookies=False,
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
@@ -52,20 +53,31 @@ class Main(Base):
     def get(self):
         self.render("index.html",items=DataBase().items())
 
-class NewItem(Base):
+class PostId(Base):
     def get(self):
+        iid = str(uuid.uuid4())
+        self.db.lpush("post_id",iid)
+        self.write(json.dumps(iid))
+
+class AddItem(Base):
+    def post(self):
         message = {
-            "id": str(self.db.incr("item:id:max")),
-            "name": self.get_argument("name"),
-            "email": self.get_argument("email"),
-            "content": self.get_argument("content"),
+            "id" : str(self.db.incr("item:id:max")),
+            "name" : self.get_argument("name"),
+            "email" : self.get_argument("email"),
+            "content" : self.get_argument("content"),
+            "post_id" : self.get_argument("post_id"),
         }
         nowtime = time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))
         self.db.hset("item:content",message['id'],message['content'])
         self.db.hset("item:name",message['id'],message['name'])
         self.db.hset("item:email",message['id'],message['email'])
         self.db.hset("item:date",message['id'],nowtime)
-        self.redirect("/")
+        chack = self.db.lrem("post_id",1,message["post_id"])
+        if chack:
+            self.write(json.dumps("success"))
+        else:
+            self.write(message["post_id"])
 
 class Items(Base):
     def get(self):

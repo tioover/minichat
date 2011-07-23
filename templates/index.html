@@ -24,13 +24,11 @@
         </div>
         <div id="chat">
             <h2>说些什么吧</h2>
-            <form action="add/" method="get">
-                <p><label for="name">昵称</label></p>
-                <p><input type="text" id="name" name="name"></p>
-                <p><label for="email">Email</label></p>
-                <p><input type="email" id="email" name="email"></p>
-                <p><label for="content">内容</label></p>
-                <p><textarea id="content" name="content"></textarea></p>
+            <form action="add/" method="post">
+                <p><input type="text" id="name" name="name" placeholder="昵称 (必填)" required></p>
+                <p><input type="email" id="email" name="email" placeholder="email (必填，不会透露)" required></p>
+                <p><textarea id="content" name="content" required></textarea></p>
+                <input type="hidden" id="post_id" name="post_id">
                 <p><input type="submit" value="发送"></p>
             </form>
         </div>
@@ -46,6 +44,7 @@
     <fooder>2010 <a href="http://eggfan.org/">Tioover</a>.</fooder>
     <script src="{{ static_url("jquery-1.6.2.min.js") }}" type="text/javascript"></script>
     <script src="{{ static_url("jquery.tmpl.min.js") }}" type="text/javascript"></script>
+    <script src="{{ static_url("jquery.tmplPlus.min.js") }}" type="text/javascript"></script>
     <script src="{{ static_url("json-minified.js") }}" type="text/javascript"></script>
     <script src="{{ static_url("im.js") }}" type="text/javascript"></script>
 </body>

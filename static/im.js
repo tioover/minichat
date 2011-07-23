@@ -1,17 +1,16 @@
-var model = {
+var update = {
     items : function(){
-                    var get = $.get("api/items.json",function(data){
-                                    //items = jsonParse(data);
-                                    //update.itemlist(items);
-                                })
-                    return(get)
-                    }
+        $.get("items.json",function(data){
+            var items = jsonParse(data);
+        })
+    },
 };
 
-var update = {
-    itemlist : function(){
-                    var items = model.items()
-                    alert(items.responseText)
-                    return(items.status)
-               }
+var post = {
+    id : function(){
+        $.get("id.json",function(data){
+            var post_id = jsonParse(data);
+            document.getElementById("post_id").value = post_id;
+        })
+    },
 };
