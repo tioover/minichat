@@ -1,16 +1,18 @@
 var update = {
     items : function(){
-        $.get("items.json",function(data){
-            var items = jsonParse(data);
-        })
     },
 };
 
 var post = {
-    id : function(){
-        $.get("id.json",function(data){
-            var post_id = jsonParse(data);
-            document.getElementById("post_id").value = post_id;
-        })
-    },
+    id : function(uuid){document.getElementById("post_id").value = uuid;},
 };
+
+
+function init(){
+    $.get("init.json",function(data){
+        var init = jsonParse(data);
+        post.id(init.post_id);
+    });
+}
+
+init();

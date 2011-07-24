@@ -18,8 +18,7 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/", Main),
             (r"/add/", AddItem),
-            (r"/items.json", Items),
-            (r"/id.json", PostId),
+            (r"/init.json", Init),
         ]
         settings = dict(
             xsrf_cookies=False,
@@ -28,15 +27,16 @@ class Application(tornado.web.Application):
         )
         tornado.web.Application.__init__(self, handlers, **settings)
 
-class DataBase:
+
+class Base(tornado.web.RequestHandler):
     db = redis.Redis(host='localhost', port=6379, db=0)
     def items(self):
-        '''Get items into dict'''
+        '''Get Allitems into dict'''
         items = []
         if self.db.get("item:id:max"):
-            i = int(self.db.get("item:id:max"))
+            maxid = int(self.db.get("item:id:max"))
             now = 1
-            while now <= i:
+            while now <= maxid:
                 items.append({
                     'content' : self.db.hget("item:content",now),
                     'name' : self.db.hget("item:name",now),
@@ -45,44 +45,50 @@ class DataBase:
                 })
                 now += 1
         return items
+    def additem(self,item):
+        '''As the name suggests'''
+        nowtime = time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))
+        self.db.hset("item:content",item['id'],item['content'])
+        self.db.hset("item:name",item['id'],item['name'])
+        self.db.hset("item:email",item['id'],item['email'])
+        self.db.hset("item:date",item['id'],nowtime)
+        check = self.db.lrem("post_id",item["post_id"],0)
+        return check
 
-class Base(tornado.web.RequestHandler):
-    db = DataBase.db
 
 class Main(Base):
     def get(self):
-        self.render("index.html",items=DataBase().items())
-
-class PostId(Base):
-    def get(self):
-        iid = str(uuid.uuid4())
-        self.db.lpush("post_id",iid)
-        self.write(json.dumps(iid))
+        self.render("index.html",items=self.items())
 
 class AddItem(Base):
     def post(self):
-        message = {
+        item = {
             "id" : str(self.db.incr("item:id:max")),
             "name" : self.get_argument("name"),
             "email" : self.get_argument("email"),
             "content" : self.get_argument("content"),
             "post_id" : self.get_argument("post_id"),
         }
-        nowtime = time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))
-        self.db.hset("item:content",message['id'],message['content'])
-        self.db.hset("item:name",message['id'],message['name'])
-        self.db.hset("item:email",message['id'],message['email'])
-        self.db.hset("item:date",message['id'],nowtime)
-        chack = self.db.lrem("post_id",1,message["post_id"])
-        if chack:
+        if self.additem(item):
             self.write(json.dumps("success"))
         else:
-            self.write(message["post_id"])
+            #Database does not POST-ID, may be repeated POST
+            self.write(json.dumps("failure"))
 
-class Items(Base):
+
+class Init(Base):
+    '''
+    App Initialization
+    post_id: A unique ID to action to prevent repeat POST
+    '''
     def get(self):
-        items = DataBase().items()
-        self.write(json.dumps(items))
+        post_id = str(uuid.uuid4())
+        self.db.lpush("post_id",post_id)
+        init = {
+            "items" : self.items(),
+            "post_id" : post_id,
+        }
+        self.write(json.dumps(init))
 
 def main():
     tornado.options.parse_command_line()
