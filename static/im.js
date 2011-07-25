@@ -40,25 +40,27 @@ var Post = {
             else {
                 Notice.post_other_failure();
             }
+            Notice.posted()
         });
     },
 };
 
 
 var Notice = {
-    post_success : function(){alert("成功！");},
+    post_success : function(){console.log("成功！");},
 
-    post_failure : function(){alert("失败……");},
+    post_failure : function(){console.log("失败……");},
 
-    post_other_error : function(){alert("未知错误");},
+    post_other_error : function(){console.log("未知错误");},
 
     posting : function(){},
+
+    posted : function(){},
 };
 
 
 function main(){
     Update.items(); //ajax load all item.
-    Post.id();
     $("#post").click(function(e){
         e.preventDefault();//stop default event.
         Post.start();//ajax post.
