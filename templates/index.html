@@ -4,6 +4,12 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="" type="text/css" media="screen" />
     <link rel="stylesheet" href="{{ static_url("style.css") }}" type="text/css"/>
+    <script id="itemsTemplate" type="text/x-jquery-tmpl">
+    <li>
+    <p class="content">${content}</p>
+    <p class="stamp"><span class="anthor">${name}</span> <span class="date">${date}</span></p>
+    </li>
+    </script>
     <title>颠颠</title>
 </head>
 <body>
@@ -29,15 +35,12 @@
                 <p><input type="email" id="email" name="email" placeholder="email (必填，不会透露)" required></p>
                 <p><textarea id="content" name="content" required></textarea></p>
                 <input type="hidden" id="post_id" name="post_id">
-                <p><input type="submit" value="发送"></p>
+                <p><input type="submit" id="post" value="发送"></p>
             </form>
         </div>
-        <div id="list">
+        <div id="items">
             <h2>条目列表</h2>
-            <ul>
-                {% for item in items %}
-                <li>{{ item['content'] }} <p id="stamp"><span class="author">{{ item['name'] }}</span> <span id="date">{{ item['date'] }}</span></p></li>
-                {% end %}
+            <ul id="list">
             </ul>
         </div>
     </div>
