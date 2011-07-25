@@ -1,6 +1,7 @@
 var Update = {
     items : function(){
         $.get("items.json",function(data){
+            $("#list").html("");
             var items = jsonParse(data);
             //This used jQuery template.
             $( "#itemsTemplate" ).tmpl(items).appendTo( "#list" );
@@ -33,6 +34,7 @@ var Post = {
             var result = jsonParse(data);
             if (result == "success") {
                 Notice.post_success();
+                Update.items();
             }
             else if (result == "failure") {
                 Notice.post_failure();
@@ -40,7 +42,7 @@ var Post = {
             else {
                 Notice.post_other_failure();
             }
-            Notice.posted()
+            Notice.posted();
         });
     },
 };
@@ -59,14 +61,10 @@ var Notice = {
 };
 
 
-function main(){
+$(document).ready(function(){
     Update.items(); //ajax load all item.
     $("#post").click(function(e){
         e.preventDefault();//stop default event.
         Post.start();//ajax post.
     });
-}
-
-$(document).ready(function(){
-    main();
 });

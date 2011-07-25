@@ -38,16 +38,15 @@ class Base(tornado.web.RequestHandler):
         '''Get Allitems into dict.'''
         items = []
         if self.db.get("item:id:max"):
-            maxid = int(self.db.get("item:id:max"))
-            now = 1
-            while now <= maxid:
+            itemid = int(self.db.get("item:id:max"))
+            while itemid >= 1:
                 items.append({
-                    'content' : self.db.hget("item:content",now),
-                    'name' : self.db.hget("item:name",now),
-                    'email' : self.db.hget("item:email",now),
-                    'date' : self.db.hget("item:date",now),
+                    'content' : self.db.hget("item:content",itemid),
+                    'name' : self.db.hget("item:name",itemid),
+                    'email' : self.db.hget("item:email",itemid),
+                    'date' : self.db.hget("item:date",itemid),
                 })
-                now += 1
+                itemid -= 1
         return items
 
     def additem(self,item):
