@@ -8,10 +8,11 @@ import redis
 import time
 import json
 import subprocess
+import hashlib
 
 from tornado.options import define, options
 
-define("port", default=8888, type=int)
+define("port", default=80, type=int)
 
 class Application(tornado.web.Application):
     def __init__(self):
@@ -42,7 +43,7 @@ class DataBase():
                 items.append({
                     'content' : self.db.hget("item:content",itemid),
                     'name' : self.db.hget("item:name",itemid),
-                    'email' : self.db.hget("item:email",itemid),
+                    'avatar' :  self.avatar_link(self.db.hget("item:email",itemid)),
                     'date' : self.db.hget("item:date",itemid),
                     'id' : itemid,
                 })
@@ -63,6 +64,13 @@ class DataBase():
     def maxidplus(self):
         return int(self.db.incr("item:id:max"))
 
+    def avatar_link(self,email):
+        if email == None: return None
+        md5 = hashlib.md5(email)
+        md5.digest()
+        emailmd5 = md5.hexdigest()
+        link = "http://0.gravatar.com/avatar/"+emailmd5+"?s=68&d=monsterid&r=G"
+        return link
 
 
 class Poll():

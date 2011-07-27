@@ -5,6 +5,7 @@ var Update = {
             var items = jsonParse(data);
             //This used jQuery template.
             $( "#itemsTemplate" ).tmpl(items).appendTo( "#list" );
+            $(".item").show();
             Update.comet(items[0].id);
         });
     },
@@ -13,6 +14,7 @@ var Update = {
         $.get("comet.json",{sence:sence},function(data){
             var items = jsonParse(data);
             $( "#itemsTemplate" ).tmpl(items).prependTo( "#list" );
+            $(".item").slideDown(500);
             Update.comet(items[0].id);
         });
     },
@@ -21,33 +23,44 @@ var Update = {
 
 var Post = {
     start : function(){
-        Post.post();
-        Notice.posting();
+        if ($("#name").val() == ""){$("#name").focus();}
+        else if ($("#content").val() == ""){$("#content").focus();}
+        else {
+            Post.post();
+        }
     },
 
     post : function(){
         var post_data = {
             name : $("#name").val(),
-            email : $("#email").val(),
             content : $("#content").val(),
+            email : $("#email").val(),
         }
         $.post("add/",post_data,function(){
-            Notice.posted();
+            $("#content").val("");
+        });
+    },
+};
+
+var Cookie = {
+}
+
+var Style = {
+    start : function(){
+        Style.masonry();
+    },
+    masonry : function(){
+        $('#list').masonry({
+            itemSelector : '.item',
+            columnWidth : 240
         });
     },
 };
 
 
-var Notice = {
-
-    posting : function(){},
-
-    posted : function(){},
-};
-
-
 $(document).ready(function(){
     Update.items(); //ajax load all item.
+    Style.start();
     $("#post").click(function(e){
         e.preventDefault();//stop default event.
         Post.start();//ajax post.

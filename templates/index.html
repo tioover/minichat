@@ -4,8 +4,17 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="" type="text/css" media="screen" />
     <link rel="stylesheet" href="{{ static_url("style.css") }}" type="text/css"/>
+    <link href="{{ static_url("icon.png") }}" rel="shortcut icon" type="image/x-icon" />
+
+    <script src="{{ static_url("jquery-1.6.2.min.js") }}" type="text/javascript"></script>
+    <script src="{{ static_url("jquery.tmpl.min.js") }}" type="text/javascript"></script>
+    <script src="{{ static_url("jquery.masonry.min.js") }}" type="text/javascript"></script>
+    <script src="{{ static_url("json-minified.js") }}" type="text/javascript"></script>
+    <script src="{{ static_url("im.js") }}" type="text/javascript"></script>
+
     <script id="itemsTemplate" type="text/x-jquery-tmpl">
-    <li>
+    <li class="item" style="display:none">
+    <img class="avatar" src="${avatar}" />
     <p class="content">${content}</p>
     <p class="stamp"><span class="anthor">${name}</span> <span class="date">${date}</span></p>
     </li>
@@ -17,38 +26,18 @@
     <h1><a href="/">颠颠</a></h1>
     </header>
     <div id="main">
-        <div id="summary">
-            <h2>这是什么东西？</h2>
-            <p>仅仅是我用来练手的小东西而已。</p>
-            <h2>和之前做的有什么区别？</h2>
-            <ul>
-                <li>更广泛的使用了Ajax，在一般情况下你之需要加载一个页面，数据只靠json传递。</li>
-                <li>尝试使用了更多的HTML5，也在实验新的页面风格。</li>
-                <li>使用新的Python框架<a href="http://www.tornadoweb.org/">Tornado</a>。</li>
-                <li>后端使用了很快的NoSQL数据库<a href="http://redis.io/">Redis</a>。</li>
-            </ul>
-        </div>
         <div id="chat">
-            <h2>说些什么吧</h2>
             <form action="add/" method="post">
-                <p><input type="text" id="name" name="name" placeholder="昵称 (必填)" required></p>
-                <p><input type="email" id="email" name="email" placeholder="email (必填，不会透露)" required></p>
-                <p><textarea id="content" name="content" required></textarea></p>
-                <input type="hidden" id="post_id" name="post_id">
-                <p><input type="submit" id="post" value="发送"></p>
+                <input type="text" id="name" name="name" placeholder="昵称 (必填)" required>
+                <input type="email" id="email" name="email" placeholder="email (必填，不会透露)" required></p>
+                <input type="text" id="content" name="content" required></textarea>
+                <input type="submit" id="post" value="发送">
             </form>
         </div>
         <div id="items">
-            <h2>条目列表</h2>
             <ul id="list">
             </ul>
         </div>
     </div>
-    <fooder>2010 <a href="http://eggfan.org/">Tioover</a>.</fooder>
-    <script src="{{ static_url("jquery-1.6.2.min.js") }}" type="text/javascript"></script>
-    <script src="{{ static_url("jquery.tmpl.min.js") }}" type="text/javascript"></script>
-    <script src="{{ static_url("jquery.tmplPlus.min.js") }}" type="text/javascript"></script>
-    <script src="{{ static_url("json-minified.js") }}" type="text/javascript"></script>
-    <script src="{{ static_url("im.js") }}" type="text/javascript"></script>
 </body>
 </html>
