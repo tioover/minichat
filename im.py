@@ -7,7 +7,6 @@ import os.path
 import redis
 import time
 import json
-import uuid
 import subprocess
 
 from tornado.options import define, options
@@ -17,10 +16,10 @@ define("port", default=8888, type=int)
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r"/", Main),
+            (r"/", Index),
             (r"/add/", AddItem),
             (r"/items.json", Items),
-            (r"/post_id.json", PostID),
+            (r"/comet.json", Comet),
         ]
         settings = dict(
             xsrf_cookies=False,
@@ -30,7 +29,7 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self, handlers, **settings)
 
 
-class Base(tornado.web.RequestHandler):
+class DataBase():
     #This project mainly uses REDIS database, see http://redis.io/ .
     db = redis.Redis(host='localhost', port=6379, db=0)
 
@@ -38,13 +37,14 @@ class Base(tornado.web.RequestHandler):
         '''Get Allitems into dict.'''
         items = []
         if self.db.get("item:id:max"):
-            itemid = int(self.db.get("item:id:max"))
+            itemid = self.maxid()
             while itemid >= 1:
                 items.append({
                     'content' : self.db.hget("item:content",itemid),
                     'name' : self.db.hget("item:name",itemid),
                     'email' : self.db.hget("item:email",itemid),
                     'date' : self.db.hget("item:date",itemid),
+                    'id' : itemid,
                 })
                 itemid -= 1
         return items
@@ -56,41 +56,67 @@ class Base(tornado.web.RequestHandler):
         self.db.hset("item:name",item['id'],item['name'])
         self.db.hset("item:email",item['id'],item['email'])
         self.db.hset("item:date",item['id'],nowtime)
-        check = self.db.lrem("post_id",item["post_id"],0)
-        return check
+
+    def maxid(self):
+        return int(self.db.get("item:id:max"))
+
+    def maxidplus(self):
+        return int(self.db.incr("item:id:max"))
 
 
-class Main(Base):
+
+class Poll():
+    waiter = []
+    def queue(self,callback,sence):
+        me = Poll
+        me.waiter.append({
+            "callback" : callback,
+            "sence" : sence,
+        })
+
+    def radiate(self):
+        me = Poll
+        for waiter in me.waiter:
+            newitems_num = int(DataBase().maxid()) - int(waiter["sence"])
+            newitems = DataBase().items()[:newitems_num]
+            waiter["callback"](newitems)
+        Poll.waiter = []
+
+
+class Comet(tornado.web.RequestHandler):
+    @tornado.web.asynchronous
     def get(self):
-        self.render("index.html",items=self.items())
+        sence = self.get_argument("sence")
+        Poll().queue(self.send,sence)
 
-class AddItem(Base):
+    def send(self,newitems):
+        try:
+            self.finish(json.dumps(newitems))
+        except IOError:
+            pass
+
+
+class Index(tornado.web.RequestHandler):
+    # If have Nginx, This class is useless.
+    def get(self):
+        self.render("index.html")
+
+class AddItem(tornado.web.RequestHandler):
     def post(self):
         item = {
-            "id" : str(self.db.incr("item:id:max")),
+            "id" : str(DataBase().maxidplus()),
             "name" : self.get_argument("name"),
             "email" : self.get_argument("email"),
             "content" : self.get_argument("content"),
-            "post_id" : self.get_argument("post_id"),
         }
-        if self.additem(item):
-            self.write(json.dumps("success"))
-        else:
-            #Database does not POST-ID, may be repeated POST.
-            self.write(json.dumps("failure"))
+        DataBase().additem(item)
+        Poll().radiate()
 
 
-class Items(Base):
+class Items(tornado.web.RequestHandler):
     '''Get all item.'''
     def get(self):
-        self.write(json.dumps(self.items()))
-
-class PostID(Base):
-    '''A unique ID to action to prevent repeat POST.'''
-    def get(self):
-        post_id = str(uuid.uuid4())
-        self.db.lpush("post_id",post_id)
-        self.write(json.dumps(post_id))
+        self.write(json.dumps(DataBase().items()))
 
 def main():
     subprocess.Popen("/usr/bin/redis-server",
@@ -99,7 +125,6 @@ def main():
     app = Application()
     app.listen(options.port)
     tornado.ioloop.IOLoop.instance().start()
-
 
 if __name__ == "__main__":
     main()
