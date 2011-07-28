@@ -70,6 +70,7 @@ class DataBase():
 
 
 class Poll():
+    ''''''
     waiter = []
     def queue(self,callback,sence):
         me = Poll

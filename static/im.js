@@ -1,4 +1,4 @@
-function items (sence){
+function update(sence){
     if (sence == 0) var sence = {};
     else sence = {sence:sence};
     $.get("items.json",sence,function(data){
@@ -6,12 +6,13 @@ function items (sence){
         //This used jQuery template.
         $( "#itemsTemplate" ).tmpl(items).prependTo( "#list" );
         $(".item").slideDown(500);
-        items(items[0].id);
+        update(items[0].id);
     });
 }
 
 function post(){
     if ($("#name").val() == ""){$("#name").focus();}
+    else if ($("#email").val() == ""){$("email").focus();}
     else if ($("#content").val() == ""){$("#content").focus();}
     else {
         var post_data = {
@@ -40,7 +41,7 @@ function masonry(){
 
 
 $(document).ready(function(){
-    items(0); //ajax load all item.
+    update(0); //ajax load all item.
     masonry();
     chat();
     $("#post").click(function(e){
