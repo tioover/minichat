@@ -20,7 +20,6 @@ class Application(tornado.web.Application):
             (r"/", Index),
             (r"/add/", AddItem),
             (r"/items.json", Items),
-            (r"/comet.json", Comet),
         ]
         settings = dict(
             xsrf_cookies=False,
@@ -43,7 +42,7 @@ class DataBase():
                 items.append({
                     'content' : self.db.hget("item:content",itemid),
                     'name' : self.db.hget("item:name",itemid),
-                    'avatar' :  self.avatar_link(self.db.hget("item:email",itemid)),
+                    'avatar' :  self.gravatar(self.db.hget("item:email",itemid)),
                     'date' : self.db.hget("item:date",itemid),
                     'id' : itemid,
                 })
@@ -52,6 +51,7 @@ class DataBase():
 
     def additem(self,item):
         '''As the name suggests.'''
+        item["id"] = int(self.db.incr("item:id:max"))
         nowtime = time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))
         self.db.hset("item:content",item['id'],item['content'])
         self.db.hset("item:name",item['id'],item['name'])
@@ -61,15 +61,11 @@ class DataBase():
     def maxid(self):
         return int(self.db.get("item:id:max"))
 
-    def maxidplus(self):
-        return int(self.db.incr("item:id:max"))
-
-    def avatar_link(self,email):
+    def gravatar(self,email):
         if email == None: return None
         md5 = hashlib.md5(email)
         md5.digest()
-        emailmd5 = md5.hexdigest()
-        link = "http://0.gravatar.com/avatar/"+emailmd5+"?s=68&d=monsterid&r=G"
+        link = "http://0.gravatar.com/avatar/" + md5.hexdigest() + "?s=68&d=monsterid&r=G"
         return link
 
 
@@ -91,11 +87,14 @@ class Poll():
         Poll.waiter = []
 
 
-class Comet(tornado.web.RequestHandler):
+class Items(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
-        sence = self.get_argument("sence")
-        Poll().queue(self.send,sence)
+        if self.get_argument("sence",None):
+            sence = self.get_argument("sence")
+            Poll().queue(self.send,sence)
+        else:
+            self.finish(json.dumps(DataBase().items()))
 
     def send(self,newitems):
         try:
@@ -105,26 +104,19 @@ class Comet(tornado.web.RequestHandler):
 
 
 class Index(tornado.web.RequestHandler):
-    # If have Nginx, This class is useless.
+    # If have Nginx, This is useless.
     def get(self):
         self.render("index.html")
 
 class AddItem(tornado.web.RequestHandler):
     def post(self):
         item = {
-            "id" : str(DataBase().maxidplus()),
             "name" : self.get_argument("name"),
             "email" : self.get_argument("email"),
             "content" : self.get_argument("content"),
         }
         DataBase().additem(item)
         Poll().radiate()
-
-
-class Items(tornado.web.RequestHandler):
-    '''Get all item.'''
-    def get(self):
-        self.write(json.dumps(DataBase().items()))
 
 def main():
     subprocess.Popen("/usr/bin/redis-server",

@@ -13,24 +13,22 @@
     <script src="{{ static_url("im.js") }}" type="text/javascript"></script>
 
     <script id="itemsTemplate" type="text/x-jquery-tmpl">
-    <li class="item" style="display:none">
+    <li class="item">
     <img class="avatar" src="${avatar}" />
     <p class="content">${content}</p>
     <p class="stamp"><span class="anthor">${name}</span> <span class="date">${date}</span></p>
     </li>
     </script>
-    <title>颠颠</title>
+    <title>治</title>
 </head>
 <body>
-    <header>
-    <h1><a href="/">颠颠</a></h1>
-    </header>
     <div id="main">
         <div id="chat">
-            <form action="add/" method="post">
+            <h2 id="tit">点这里吱声</h2>
+            <form id="chatform" action="add/" method="post">
                 <input type="text" id="name" name="name" placeholder="昵称 (必填)" required>
                 <input type="email" id="email" name="email" placeholder="email (必填，不会透露)" required></p>
-                <input type="text" id="content" name="content" required></textarea>
+                <textarea id="content" name="content" required></textarea>
                 <input type="submit" id="post" value="发送">
             </form>
         </div>
