@@ -1,0 +1,45 @@
+<!Doctype html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="" type="text/css" media="screen" />
+    <link rel="stylesheet" href="{{ static_url("style.css") }}" type="text/css"/>
+    <link href="{{ static_url("icon.png") }}" rel="shortcut icon" type="image/x-icon" />
+
+    <script src="{{ static_url("jquery-1.6.2.min.js") }}" type="text/javascript"></script>
+    <script src="{{ static_url("jquery.tmpl.min.js") }}" type="text/javascript"></script>
+    <script src="{{ static_url("main.js") }}" type="text/javascript"></script>
+
+    <script id="itemsTemplate" type="text/x-jquery-tmpl">
+        <li class="item" style="display:none">
+        <img class="avatar" src="${avatar}" />
+        <p class="content">{%raw '{{html content }}' %}</p>
+        <p class="stamp"><span class="anthor"><strong>${name}</strong> said on </span><span class="date">${date}</span></p>
+        </li>
+    </script>
+    <title>im</title>
+</head>
+<body>
+    <header>
+    <h1><a href="/">im</a></h1>
+    </header>
+    <div id="main">
+        <div id="chat">
+            <form id="chatform" action="add/" method="post">
+                <label for="name">昵称</label>
+                <p><input type="text" id="name" name="name" required></p>
+                <label for="email">邮箱(不会透露)</label>
+                <p><input type="email" id="email" name="email" required></p>
+                <p><textarea id="content" name="content" required></textarea></p>
+                <p><em>支持markdown格式</em></p>
+                <p><input type="submit" id="post" value="发送"></p>
+            </form>
+        </div>
+        <div id="items">
+            <ul id="list">
+            </ul>
+        </div>
+    </div>
+    <footer><p>coding by <a href="http://eggfan.org/">tioover</a>. :)</p></footer>
+</body>
+</html>
