@@ -1,2 +1,2 @@
-#About im
-This is just my personal practice and study for the project, does not have any meaning.
+#关于这个东西
+这是个人做的小练习项目，使用了长轮询和Tornado的同步非阻塞特性，并且写了点注释，或许能当一个小小的范例来用。

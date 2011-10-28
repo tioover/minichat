@@ -126,9 +126,9 @@ class AddItem(Poll):
         '''检查输入'''
         if not "name" in self.request.arguments:
             return False
-        if not "email" in self.request.arguments:
+        elif not "email" in self.request.arguments:
             return False
-        if not "content" in self.request.arguments:
+        elif not "content" in self.request.arguments:
             return False
         return True
 
@@ -142,8 +142,8 @@ class Home(Base):
 
 
 def main():
-    subprocess.Popen("/usr/bin/redis-server", #redis server path
-                     stdout=subprocess.PIPE)
+    #创建一个子进程来运行数据库服务器
+    subprocess.Popen("/usr/bin/redis-server", stdout=subprocess.PIPE) 
     tornado.options.parse_command_line()
     app = Application()
     app.listen(options.port)

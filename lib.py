@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # coding=utf-8
 import hashlib
-import markdown
+import markdown2
 
 def gravatar(email, size="100", default="identicon"):
     if not email: return None
@@ -27,5 +27,5 @@ def escape(raw):
 
 def markdown_to_html(raw):
     """将markdown格式文本转换为HTML"""
-    html = markdown.Markdown().convert(raw)
+    html = markdown2.Markdown().convert(raw)
     return html
