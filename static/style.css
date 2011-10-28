@@ -14,9 +14,11 @@ body {
 
 .item {
     font-size: 18px;
+    border-bottom: 1px solid #FFF;
 }
 
 .stamp {
+    clear: both;
     font-size: 12px;
 }
 
