@@ -3,7 +3,7 @@
 import hashlib
 import markdown2
 
-def gravatar(email, size="100", default="identicon"):
+def gravatar(email, size="80", default="identicon"):
     if not email: return None
     '''生成GravatarURL'''
     email = email.encode('utf-8')

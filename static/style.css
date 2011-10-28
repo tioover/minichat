@@ -1,0 +1,25 @@
+body {
+    font-size: 14px;
+    background-color: #def4e1;
+}
+
+#list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.avatar {
+    float: right;
+}
+
+.item {
+    font-size: 18px;
+}
+
+.stamp {
+    font-size: 12px;
+}
+
+footer {
+    font-size: 10px;
+}
