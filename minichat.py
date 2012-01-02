@@ -5,7 +5,7 @@ import tornado.options
 import tornado.web
 import os.path
 import redis
-import time
+import datatime
 import json
 import subprocess
 import lib
@@ -35,7 +35,7 @@ class DataBase(object):
         '''添加一个新的条目'''
         item["id"] = int(self.db.incr("item:id:max"))
         item['content'] = lib.escape(item['content'])
-        nowtime = time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))
+        nowtime = lib.strtime(datetime.datetime.now())
         self.db.hset("item:content", item['id'], item['content'])
         self.db.hset("item:name", item['id'], item['name'])
         self.db.hset("item:avatar", item['id'], item['avatar'])

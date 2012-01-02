@@ -2,6 +2,7 @@
 # coding=utf-8
 import hashlib
 import markdown2
+import datetime
 
 def gravatar(email, size="80", default="identicon"):
     if not email: return None
@@ -29,3 +30,7 @@ def markdown_to_html(raw):
     """将markdown格式文本转换为HTML"""
     html = markdown2.Markdown().convert(raw)
     return html
+
+def strtime(time, time_format="%y-%m-%d %H:%M"):
+    '''时间格式化，strftime的重命名，但是带默认参数'''
+    return datetime.datetime.strftime(time, time_format)
