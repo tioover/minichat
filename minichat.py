@@ -10,26 +10,25 @@ import json
 import subprocess
 import lib
 
-class Base(tornado.web.RequestHandler):
+class DataBase(object):
     '''数据库操作，具体细节可以不用去管'''
-    #This project uses REDIS database, see http://redis.io/ .
     db = redis.Redis(host='localhost', port=8042, db=0)
 
     def items(self):
         '''从数据库获取所有条目'''
+        itemid = self.maxid()
         items = []
-        if self.maxid():
-            itemid = self.maxid()
-            while itemid >= 1:
-                new_item = {
-                    'content': self.db.hget("item:content", itemid),
-                    'name': self.db.hget("item:name", itemid),
-                    'avatar': self.db.hget("item:avatar", itemid),
-                    'date': self.db.hget("item:date", itemid),
-                    'id': itemid,
-                }
-                items.append(new_item)
-                itemid -= 1
+        if not itemid: return items
+        while itemid > 0:
+            item = {
+                'content': self.db.hget("item:content", itemid),
+                'name': self.db.hget("item:name", itemid),
+                'avatar': self.db.hget("item:avatar", itemid),
+                'date': self.db.hget("item:date", itemid),
+                'id': itemid,
+            }
+            items.append(item)
+            itemid -= 1
         return items
 
     def add_item(self, item):
@@ -47,6 +46,9 @@ class Base(tornado.web.RequestHandler):
             return int(self.db.get("item:id:max"))
         except TypeError:
             return None
+
+class Base(DataBase, tornado.web.RequestHandler):
+    pass
 
 
 class Poll(Base):
@@ -69,11 +71,11 @@ class Poll(Base):
 class GetItems(Poll):
     @tornado.web.asynchronous # 使用Tornado提供的异步非阻塞特性
     def get(self):
-        sence = int(self.get_argument("sence", default = -1))
-        if sence is -1:
+        sence = int(self.get_argument("sence"))
+        if sence == 0 and self.maxid():
             self.finish(json.dumps(self.items()))
-        else:
-            self.queue(self.send, sence) #添加到等待队列中
+            return
+        self.queue(self.send, sence) #添加到等待队列中
 
     def send(self,newitems):
         '''作为广播队列中的回调函数，一旦有新条目回调函数就会被调用，
