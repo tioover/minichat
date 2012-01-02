@@ -13,7 +13,7 @@ import lib
 class Base(tornado.web.RequestHandler):
     '''数据库操作，具体细节可以不用去管'''
     #This project uses REDIS database, see http://redis.io/ .
-    db = redis.Redis(host='localhost', port=8842, db=0)
+    db = redis.Redis(host='localhost', port=8042, db=0)
 
     def items(self):
         '''从数据库获取所有条目'''
@@ -69,13 +69,11 @@ class Poll(Base):
 class GetItems(Poll):
     @tornado.web.asynchronous # 使用Tornado提供的异步非阻塞特性
     def get(self):
-        sence = int(self.get_argument("sence", 0))
-        #一般情况下如果参数是0的话就立刻返回所有的项目，但是在数据库没有item
-        #的情况下服务器会阻塞请求，直到有item.
-        if (sence is not 0) or (not self.maxid):
-            self.queue(self.send, sence) #添加到等待队列中
-        else:
+        sence = int(self.get_argument("sence", default = -1))
+        if sence is -1:
             self.finish(json.dumps(self.items()))
+        else:
+            self.queue(self.send, sence) #添加到等待队列中
 
     def send(self,newitems):
         '''作为广播队列中的回调函数，一旦有新条目回调函数就会被调用，
@@ -127,7 +125,7 @@ settings = dict(
 def run():
     #创建一个子进程来运行数据库服务器
     subprocess.Popen(
-        ("/usr/bin/redis-server", 'redis.conf'), stdout=subprocess.PIPE) 
+        ("/usr/bin/redis-server", 'redis.conf')) 
     tornado.options.parse_command_line()
     app = tornado.web.Application(handlers, **settings)
     app.listen(settings['port'])
